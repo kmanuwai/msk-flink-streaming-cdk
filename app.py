@@ -3,7 +3,8 @@ import os
 
 import aws_cdk as cdk
 
-from nbn_streaming_poc.nbn_streaming_poc_stack import NbnStreamingPocStack
+#from nbn_streaming_poc.nbn_streaming_poc_stack import NbnStreamingPocStack
+from nbn_streaming_poc.L2_nbn_streaming_poc_stack import NbnStreamingPocStack
 
 
 app = cdk.App()
