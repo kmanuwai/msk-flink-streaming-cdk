@@ -138,7 +138,7 @@ class NbnStreamingPocStack(Stack):
         ))
         
 
-        # Run every minute
+        # Run Producer Lambda function every 300 seconds
         # See https://docs.aws.amazon.com/lambda/latest/dg/tutorial-scheduled-events-schedule-expressions.html
         rule = events.Rule(
             self, "scheduledEvent",
@@ -193,7 +193,7 @@ class NbnStreamingPocStack(Stack):
         flink_app = flink.Application(self, "App",
             code=flink.ApplicationCode.from_asset("./PythonKafkaSink/PythonKafkaSink.zip"),
             runtime=flink.Runtime.FLINK_1_11,
-            git =vpc,
+            vpc=vpc,
             security_groups=[all_sg],
             #role=flink_role,
             property_groups=
