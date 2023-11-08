@@ -1,7 +1,5 @@
 
-# PoC Apache Flink and Kafka 
-
-
+# Real-Time Streaming with Amazon Managed Apache Kafka and Flink 
 Based on: https://aws.amazon.com/blogs/big-data/build-a-real-time-streaming-application-using-apache-flink-python-api-with-amazon-kinesis-data-analytics/
 
 To run: 
