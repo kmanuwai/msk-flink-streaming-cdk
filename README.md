@@ -2,18 +2,32 @@
 # PoC Apache Flink and Kafka 
 
 
-Based on: 
+Based on: https://aws.amazon.com/blogs/big-data/build-a-real-time-streaming-application-using-apache-flink-python-api-with-amazon-kinesis-data-analytics/
 
 To run: 
-1. install the required dependencies:
+1. Clone the GitHub Repository. Note you will need to authenticate. I.e. utilising Personal Access Tokens (https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+```
+git clone https://github.com/kmanuwai/msk-flink-streaming.git
+```
+
+2. Change into the cloned directory:
+```
+cd msk-flink-streaming
+```
+
+3. Install the required dependencies:
+```
+pip install -r requirements.txt
+```
+
+4. (Optional) Bootstrap AWS Account for CDK:
+```
+cdk bootstrap
+```
+
+5. Deploy the stack:
 
 ```
-$ pip install -r requirements.txt
-```
-
-2. Deploy the stack:
-
-```
-$ cdk deploy
+cdk deploy
 ```
 
