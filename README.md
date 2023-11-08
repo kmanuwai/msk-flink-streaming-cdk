@@ -25,7 +25,7 @@ pip install -r requirements.txt
 cdk bootstrap
 ```
 
-5. Deploy the stack:
+5. Deploy the stack (30-40 mins):
 
 ```
 cdk deploy
