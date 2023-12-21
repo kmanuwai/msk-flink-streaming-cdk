@@ -119,7 +119,7 @@ class LambdaStack(NestedStack):
         # Producer Function
         lambdaFn = lambda_.Function(
             self, "kfpLambdaStreamProducer",
-            code=lambda_.Code.from_asset("./lambda-functions"),
+            code=lambda_.Code.from_asset("./LambdaFunctions"),
             handler="kfpLambdaStreamProducer.lambda_handler",
             timeout=Duration.seconds(50),
             runtime=lambda_.Runtime.PYTHON_3_8,
@@ -139,7 +139,7 @@ class LambdaStack(NestedStack):
         # SNS Function
         sns_lambdaFn = lambda_.Function(
             self, "sns_alarm_function",
-            code=lambda_.Code.from_asset("./lambda-functions"),
+            code=lambda_.Code.from_asset("./LambdaFunctions"),
             handler="kfpLambdaConsumerSNS.lambda_handler",
             timeout=Duration.seconds(300),
             runtime=lambda_.Runtime.PYTHON_3_8,
