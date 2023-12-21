@@ -3,12 +3,11 @@ import os
 
 import aws_cdk as cdk
 
-#from nbn_streaming_poc.nbn_streaming_poc_stack import NbnStreamingPocStack
-from nbn_streaming_poc.L2_nbn_streaming_poc_stack import NbnStreamingPocStack
+from msk_flink_streaming_stack import MSKFlinkStreamingStack
 
 
 app = cdk.App()
-NbnStreamingPocStack(app, "NbnStreamingPocStack",
+MSKFlinkStreamingStack(app, "MSKFlinkStreamingStack",
     # If you don't specify 'env', this stack will be environment-agnostic.
     # Account/Region-dependent features and context lookups will not work,
     # but a single synthesized template can be deployed anywhere.
