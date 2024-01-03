@@ -1,5 +1,5 @@
 
-# Real-Time Streaming with Amazon Managed Apache Kafka and Flink 
+# Real-Time Streaming with Amazon Managed Streaming for Apache Kafka (Amazon MSK) and Amazon Managed Service for Apache Flink 
 
 <!--BEGIN STABILITY BANNER-->
 ---
