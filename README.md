@@ -33,13 +33,13 @@ The workflow includes the following steps:
 4. After processing, data with average temperature calculation is stored in Amazon S3 and data with anomaly results is sent to the output topic of the same MSK cluster.
 5. The Lambda function monitors the output stream, and processes and sends data to the appropriate destination—for this use case, Amazon Simple Notification Service (Amazon SNS).
 
-## To run: 
+## To Run: 
 1. Install the required dependencies:
 ```
 pip install -r requirements.txt
 ```
 
-2. Download Apache Flink Connector for Kafka SQL ![Source](https://mvnrepository.com/artifact/org.apache.flink/flink-sql-connector-kafka_2.11/1.11.2)
+2. Download Apache Flink Connector for Kafka SQL ![(Source)](https://mvnrepository.com/artifact/org.apache.flink/flink-sql-connector-kafka_2.11/1.11.2)
 ```
 curl https://repo1.maven.org/maven2/org/apache/flink/flink-sql-connector-kafka_2.11/1.11.2/flink-sql-connector-kafka_2.11-1.11.2.jar --output PythonKafkaSink/lib/flink-sql-connector-kafka_2.11-1.11.2.jar
 
