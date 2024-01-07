@@ -22,7 +22,18 @@ Based on the following AWS Blog: https://aws.amazon.com/blogs/big-data/build-a-r
 ![Architecture Diagram](https://d2908q01vomqb2.cloudfront.net/b6692ea5df920cad691c20319a6fffd7a4a766b8/2021/03/25/bdb1289-pyflink-kda-1-1.jpg
  "Resources created with CDK")
 
-To run: 
+This repository provides two examples of running a Python-based Apache Flink application using Amazon Managed Service for Apache Flink with stateful processing. We use custom code to generate random telemetry data that includes sensor ID, temperature, and event time.
+The first use case demonstrates sending a notification when the count of high temperature readings of a sensor exceeds a defined threshold within a window (for this post, 30 seconds).
+The second use case calculates the average temperature of the sensors within a fixed window (30 seconds), and persists the results in Amazon Simple Storage Service (Amazon S3) partitioned by event time for efficient query processing.
+
+The workflow includes the following steps:
+1. An Amazon CloudWatch event triggers an AWS Lambda function every minute.
+2. The Lambda function generates telemetry data and sends the data to Amazon Managed Streaming for Apache Kafka (Amazon MSK).
+3. The data is processed by an Apache Flink Python application hosted on Amazon Managed Service for Apache Flink.
+4. After processing, data with average temperature calculation is stored in Amazon S3 and data with anomaly results is sent to the output topic of the same MSK cluster.
+5. The Lambda function monitors the output stream, and processes and sends data to the appropriate destination—for this use case, Amazon Simple Notification Service (Amazon SNS).
+
+## To run: 
 1. Install the required dependencies:
 ```
 pip install -r requirements.txt
