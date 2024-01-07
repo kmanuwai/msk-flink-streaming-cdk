@@ -24,6 +24,7 @@ from aws_cdk import (
     aws_logs as logs,
     aws_sns as sns,
     aws_lambda_event_sources,
+    BundlingOptions
 )
 from constructs import Construct
 import aws_cdk.aws_kinesisanalytics_flink_alpha as flink # L2 Construct for Managed Apache Flink 
@@ -58,22 +59,30 @@ class FlinkStack(NestedStack):
         )
 
         flink_app_code_zip = s3deployment.BucketDeployment(self, "flink_app_code_zip",
-            sources=[s3deployment.Source.asset("./PythonKafkaSink/PythonKafkaSink.zip")],
+            sources=[s3deployment.Source.asset("./PythonKafkaSink.zip")],
             destination_bucket=flink_code_bucket,
             extract=False
         )
         
+        flink_app_role = iam.Role(self, "FlinkAppRole",
+            assumed_by=iam.ServicePrincipal("kinesisanalytics.amazonaws.com"),
+            managed_policies=[iam.ManagedPolicy.from_aws_managed_policy_name("AdministratorAccess")]
+          )
+        
+
+          
         # Apache Flink Application
         flink_app = flink.Application(self, "Flink-App",
-            code=flink.ApplicationCode.from_asset("./PythonKafkaSink/PythonKafkaSink.zip"),
+            code=flink.ApplicationCode.from_asset("./PythonKafkaSink.zip"),
             runtime=flink.Runtime.FLINK_1_11,
             vpc=vpc,
             security_groups=[security_group],
+            role=flink_app_role,
             property_groups=
             {
                "kinesis.analytics.flink.run.options" : {
                     "python" : "PythonKafkaSink/main.py", 
-                    "jarfile" : "PythonKafkaSink/lib/flink-sql-connector-kafka_2.11-1.11.2.jar" 
+                    "jarfile" : "PythonKafkaSink/lib/flink-sql-connector-kafka_2.11-1.11.2.jar"
                 }
                     ,
                "producer.config.0" : {
@@ -85,6 +94,7 @@ class FlinkStack(NestedStack):
                     "output.s3.bucket": output_bucket.bucket_name
                 }
             }
+            
         )
         
         # Grant Apache Flink access to read and write to output bucket
@@ -109,17 +119,44 @@ class LambdaStack(NestedStack):
             "lambda-role",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
             # WARNING: Tighten up policies used 
-            managed_policies=[iam.ManagedPolicy.from_aws_managed_policy_name("AmazonMSKFullAccess"),
-                               iam.ManagedPolicy.from_aws_managed_policy_name("AmazonEC2FullAccess"),
-                               iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSNSFullAccess"),
-                               iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
+            managed_policies=[iam.ManagedPolicy.from_aws_managed_policy_name("AdministratorAccess"),
+                              iam.ManagedPolicy.from_aws_managed_policy_name("AmazonMSKFullAccess"),
+                              iam.ManagedPolicy.from_aws_managed_policy_name("AmazonEC2FullAccess"),
+                              iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSNSFullAccess"),
+                              iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
                                ],
+        )
+        
+        lambda_role.add_to_policy(iam.PolicyStatement(
+            effect=iam.Effect.ALLOW,
+            actions=[
+                "kafka-cluster:Connect",
+                #"kafka-cluster:AlterCluster",
+                "kafka-cluster:DescribeCluster",
+                "kafka-cluster:*Topic*",
+                "kafka-cluster:WriteData",
+                "kafka-cluster:ReadData",
+                #"kafka-cluster:AlterGroup",
+                "kafka-cluster:DescribeGroup"
+            ],
+            resources=[
+                "*" # TODO Change to cluster_arn, topic and gorups
+            ]
+            )
         )
             
         # Producer Function
         lambdaFn = lambda_.Function(
             self, "kfpLambdaStreamProducer",
-            code=lambda_.Code.from_asset("./LambdaFunctions"),
+            code=lambda_.Code.from_asset(
+                "./LambdaFunctions",
+                bundling=BundlingOptions(
+                image=lambda_.Runtime.PYTHON_3_8.bundling_image,
+                command=[
+                    "bash", "-c",
+                    "pip install -r requirements.txt -t /asset-output && cp -au . /asset-output"
+                ],
+            ),),
             handler="kfpLambdaStreamProducer.lambda_handler",
             timeout=Duration.seconds(50),
             runtime=lambda_.Runtime.PYTHON_3_8,
@@ -195,7 +232,7 @@ class MSKFlinkStreamingStack(Stack):
         # Currently still need to use the L1 MSK construct to load a config file
         config_file = open('./cluster_config', 'r')
         server_properties = config_file.read()
-        cfn_configuration = msk.CfnConfiguration(self, "MyCfnConfiguration",
+        cfn_configuration = msk.CfnConfiguration(self, "MyCfnConfig",
             name="MSKConfig",
             server_properties=server_properties
         )
@@ -203,18 +240,26 @@ class MSKFlinkStreamingStack(Stack):
         # MSK Cluster - L2 Construct (Experimental)
         msk_cluster = msk_alpha.Cluster(self, "msk-cluster",
             cluster_name="msk-cluster",
-            kafka_version=msk_alpha.KafkaVersion.V2_3_1,
+            kafka_version=msk_alpha.KafkaVersion.V3_4_0,
             vpc=vpc,
             encryption_in_transit=msk_alpha.EncryptionInTransitConfig(
-                client_broker=msk_alpha.ClientBrokerEncryption.PLAINTEXT, # TODO: Change to TLS
+                client_broker=msk_alpha.ClientBrokerEncryption.PLAINTEXT #TLS,
             ),
+            # client_authentication=msk_alpha.ClientAuthentication.sasl(
+            #     iam=True,
+            # ),
             configuration_info=msk_alpha.ClusterConfigurationInfo(
                 arn=cfn_configuration.attr_arn,
                 revision=1
             ),
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType('PRIVATE_WITH_EGRESS')),
             security_groups=[all_sg],
-            instance_type=ec2.InstanceType("kafka.m5.large")
+            instance_type=ec2.InstanceType("kafka.m5.large"),
+            ebs_storage_info = msk_alpha.EbsStorageInfo(
+                volume_size=50
+            ),
+            removal_policy=RemovalPolicy.DESTROY,
+            
         )
         
         
@@ -227,10 +272,10 @@ class MSKFlinkStreamingStack(Stack):
         flinkStack = FlinkStack(self, "FlinkStack",
             vpc=vpc,
             security_group=all_sg,
-            bootstrap_brokers=msk_cluster.bootstrap_brokers
+            bootstrap_brokers=msk_cluster.bootstrap_brokers#_sasl_iam # TODO: Parameterise so it changes with Auth method
         )
         
-        
+
 
     
 
