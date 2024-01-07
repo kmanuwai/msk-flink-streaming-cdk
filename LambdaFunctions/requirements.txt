@@ -1,2 +1,1 @@
-kafka-python
-aws-msk-iam-sasl-signer-python
+kafka-python==2.0.1
