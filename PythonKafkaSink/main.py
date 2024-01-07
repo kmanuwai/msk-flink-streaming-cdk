@@ -26,8 +26,11 @@ def create_table_input(table_name, stream_name, broker):
                 'json.timestamp-format.standard' = 'ISO-8601',
                 'scan.startup.mode' = 'earliest-offset'
               ) """.format(table_name, stream_name, broker)
-
-
+# SSL IAM Properties
+# 'properties.security.protocol' = 'SASL_SSL',
+# 'properties.sasl.mechanism' = 'AWS_MSK_IAM',
+# 'properties.sasl.jaas.config' = 'software.amazon.msk.auth.iam.IAMLoginModule required;',
+# 'properties.sasl.client.callback.handler.class' = 'software.amazon.msk.auth.iam.IAMClientCallbackHandler'
 def create_table_output_kafka(table_name, stream_name, broker):
     return """ CREATE TABLE {0} (
                 `sensor_id` VARCHAR(64) NOT NULL,

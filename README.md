@@ -28,12 +28,19 @@ To run:
 pip install -r requirements.txt
 ```
 
-2. (Optional) Bootstrap AWS Account for CDK:
+2. Download Apache Flink Connector for Kafka SQL ![Source] (https://mvnrepository.com/artifact/org.apache.flink/flink-sql-connector-kafka_2.11/1.11.2)
+```
+curl https://repo1.maven.org/maven2/org/apache/flink/flink-sql-connector-kafka_2.11/1.11.2/flink-sql-connector-kafka_2.11-1.11.2.jar --output PythonKafkaSink/lib/flink-sql-connector-kafka_2.11-1.11.2.jar
+
+zip -r PythonKafkaSink.zip PythonKafkaSink/
+```
+
+3. Bootstrap AWS Account for CDK:
 ```
 cdk bootstrap
 ```
 
-3. Deploy the stack (30-40 mins):
+4. Deploy the stack (30-40 mins):
 
 ```
 cdk deploy
