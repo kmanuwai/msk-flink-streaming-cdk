@@ -120,7 +120,7 @@ class LambdaStack(NestedStack):
             "lambda-role",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
             managed_policies=[
-                              iam.ManagedPolicy.from_aws_managed_policy_name("AWSLambdaMSKExecutionRole"),
+                              iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaMSKExecutionRole"),
                               iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSNSFullAccess"),
                               iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
                                ],
