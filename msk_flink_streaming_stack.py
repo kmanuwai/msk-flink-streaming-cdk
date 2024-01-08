@@ -1,3 +1,6 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 # Note: MSK cluster takes almost 40 mins to deploy
 
 # To use the experimental L2 constructs for Managed Apache Flink and Managed Apache Kafka, install the following: 
