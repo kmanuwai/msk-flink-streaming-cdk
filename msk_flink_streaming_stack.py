@@ -64,10 +64,11 @@ class FlinkStack(NestedStack):
             extract=False
         )
         
+        
+        
         flink_app_role = iam.Role(self, "FlinkAppRole",
             assumed_by=iam.ServicePrincipal("kinesisanalytics.amazonaws.com"),
-            managed_policies=[iam.ManagedPolicy.from_aws_managed_policy_name("AdministratorAccess")]
-          )
+        )
         
 
           
@@ -118,10 +119,8 @@ class LambdaStack(NestedStack):
             self,
             "lambda-role",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
-            # WARNING: Tighten up policies used 
-            managed_policies=[iam.ManagedPolicy.from_aws_managed_policy_name("AdministratorAccess"),
-                              iam.ManagedPolicy.from_aws_managed_policy_name("AmazonMSKFullAccess"),
-                              iam.ManagedPolicy.from_aws_managed_policy_name("AmazonEC2FullAccess"),
+            managed_policies=[
+                              iam.ManagedPolicy.from_aws_managed_policy_name("AWSLambdaMSKExecutionRole"),
                               iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSNSFullAccess"),
                               iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
                                ],
@@ -131,16 +130,14 @@ class LambdaStack(NestedStack):
             effect=iam.Effect.ALLOW,
             actions=[
                 "kafka-cluster:Connect",
-                #"kafka-cluster:AlterCluster",
                 "kafka-cluster:DescribeCluster",
                 "kafka-cluster:*Topic*",
                 "kafka-cluster:WriteData",
                 "kafka-cluster:ReadData",
-                #"kafka-cluster:AlterGroup",
                 "kafka-cluster:DescribeGroup"
             ],
             resources=[
-                "*" # TODO Change to cluster_arn, topic and gorups
+                cluster_arn
             ]
             )
         )
