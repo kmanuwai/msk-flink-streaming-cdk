@@ -27,10 +27,9 @@ def lambda_handler(event, context):
         ClusterArn=cluster_arn
     )
     print(response)
-    tp = MSKTokenProvider()
-    print(tp)
     
     # IAM Auth
+    #tp = MSKTokenProvider()
     # producer = KafkaProducer(security_protocol="SASL_SSL", #"PLAINTEXT",#
     #                          bootstrap_servers=response["BootstrapBrokerStringSaslIam"], #["BootstrapBrokerString"],#
     #                          value_serializer=lambda x: x.encode("utf-8"),
