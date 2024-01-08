@@ -9,15 +9,16 @@ import random
 import time
 
 from kafka import KafkaProducer
-from aws_msk_iam_sasl_signer import MSKAuthTokenProvider
-import socket
+#from aws_msk_iam_sasl_signer import MSKAuthTokenProvider
+#import socket
 
 msk = boto3.client("kafka")
 
-class MSKTokenProvider():
-    def token(self):
-        token, _ = MSKAuthTokenProvider.generate_auth_token("ap-southeast-2", aws_debug_creds = True)
-        return token
+# For IAM Auth
+# class MSKTokenProvider():
+#     def token(self):
+#         token, _ = MSKAuthTokenProvider.generate_auth_token("ap-southeast-2", aws_debug_creds = True)
+#         return token
 
 
 def lambda_handler(event, context):
